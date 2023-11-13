@@ -37,22 +37,86 @@ ul_sensor_front.MODE_US_DIST_CM = 'US-DIST-CM'
 ul_sensor_left.MODE_US_DIST_CM = 'US-DIST-CM'
 ul_sensor_right.MODE_US_DIST_CM = 'US-DIST-CM'
 
-cur_angle = gyro_sensor.angle
+#face_angle = gyro_sensor.angle
 
-def turn_right(): 
+#facing represents which direction the robot is facing
+# 0 represents up 
+# 1 represents right 
+# 2 represents down 
+# 3 represents left
+facing = 0
+
+#Not to be used. These functions are for making the actions simpler to read.
+def turn_right_90(): 
     angle = gyro_sensor.angle
     while gyro_sensor.angle < angle + 85:
         tank_drive.on(20, -10)
     tank_drive.on(0,0)
+    facing += 1
+    facing %= 4
     
-def turn_left(): 
+def turn_left_90(): 
     angle = gyro_sensor.angle
     while gyro_sensor.angle > angle - 85:
         tank_drive.on(-10, 20)
     tank_drive.on(0,0)
+    facing -= 1
+    facing %= 4
     
-#Action 1
-def move_forward(): 
+#Actions
+def move_up(): 
+    #facing right
+    if facing == 1: 
+        turn_left_90()
+    #facing down
+    elif facing == 2: 
+        turn_left_90()
+        turn_left_90()
+    #facing left
+    elif facing == 3: 
+        turn_right_90()
+        
+    tank_drive.on(20,20)
+    
+def move_down(): 
+    #facing up
+    if facing == 0: 
+        turn_left_90()
+        turn_left_90()
+    #facing right
+    elif facing == 1: 
+        turn_right_90()
+    #facing left
+    elif facing == 3: 
+        turn_left_90()
+        
+    tank_drive.on(20,20)
+    
+def move_left(): 
+    #facing up
+    if facing == 0: 
+        turn_left_90()
+    #facing right
+    elif facing == 1: 
+        turn_right_90()
+        turn_right_90()
+    #facing down
+    elif facing == 2: 
+        turn_left_90()
+    
+    tank_drive.on(20,20)
+    
+def move_right(): 
+    #facing up
+    if facing == 0: 
+        turn_right_90()
+    #facing down
+    elif facing == 2: 
+        turn_left_90()
+    #facing left
+    elif facing == 3: 
+        turn_left_90()
+        turn_left_90()
     tank_drive.on(20,20)
 
 #while True:
@@ -76,5 +140,4 @@ def move_forward():
     #print("Im in the loop")
     '''
     
-move_forward()
 
