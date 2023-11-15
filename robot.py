@@ -48,23 +48,29 @@ facing = 0
 
 #Not to be used. These functions are for making the actions simpler to read.
 def turn_right_90(): 
+    global facing
+    
     angle = gyro_sensor.angle
-    while gyro_sensor.angle < angle + 85:
-        tank_drive.on(20, -10)
+    while gyro_sensor.angle < angle + 90:
+        tank_drive.on(40, 0)
     tank_drive.on(0,0)
     facing += 1
     facing %= 4
     
 def turn_left_90(): 
+    global facing
+    
     angle = gyro_sensor.angle
-    while gyro_sensor.angle > angle - 85:
-        tank_drive.on(-10, 20)
+    while gyro_sensor.angle > angle - 90:
+        tank_drive.on(, 40)
     tank_drive.on(0,0)
     facing -= 1
     facing %= 4
     
 #Actions
 def move_up(): 
+    global facing
+    
     #facing right
     if facing == 1: 
         turn_left_90()
@@ -79,6 +85,8 @@ def move_up():
     tank_drive.on(20,20)
     
 def move_down(): 
+    global facing
+    
     #facing up
     if facing == 0: 
         turn_left_90()
