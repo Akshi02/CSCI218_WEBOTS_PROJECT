@@ -256,7 +256,7 @@ def compute_Qvalue(state, action, count=0):
     )
 
 
-def q_initialization():
+def q_learning(state):
     # q_table = [[0,0,0,0],[0,0,0,0]] list of states and their actions inside them
 
     # q(state, action) = r(state, action) + gamma * Max[Q_nextState()]
@@ -266,3 +266,5 @@ def q_initialization():
     Q_next_state = computeNextState(state)
 
     q = compute_Qvalue()
+    
+    q_table[state] = 
