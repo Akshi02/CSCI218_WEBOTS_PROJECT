@@ -148,4 +148,56 @@ def move_right():
     #print("Im in the loop")
     '''
     
+#Akshita's States Defination:
 
+# Define maze dimensions
+maze_width = 15
+maze_height = 15
+
+# Define states
+states = [(x, y) for x in range(maze_width) for y in range(maze_height)]
+
+# Print the defined states
+print("Defined States:")
+print(states)
+
+
+def extract_wall_coordinates(gps_sensor_position, maze_options):
+    if not gps_sensor_position:
+        print("GPSSensor not found in the robot configuration.")
+        return []
+
+    maze_columns = maze_options.get("columns", 0)
+    maze_rows = maze_options.get("rows", 0)
+    maze_size = maze_options.get("size", 0)
+    wall_thickness = maze_options.get("wallThickness", 0)
+
+    robot_position = (int(gps_sensor_position[0]), int(gps_sensor_position[1]))
+
+    walls = []
+
+    for x in range(maze_columns):
+        for y in range(maze_rows):
+            if x == 0 or x == maze_columns - 1 or y == 0 or y == maze_rows - 1:
+                # Considering outer walls as obstacles
+                walls.append((x, y))
+            elif (
+                x % maze_size == 0 and y % maze_size == 0
+            ):  # Assuming walls are placed at regular intervals
+                distance_to_robot = math.sqrt((x - robot_position[0]) ** 2 + (y - robot_position[1]) ** 2)
+                walls.append((x, y, distance_to_robot))  # Include distance information
+
+    return walls
+
+# Example usage
+robot_position = (gps_sensor.X, gps_sensor.Y)  # Replace with actual GPS sensor position
+maze_options = {
+    "columns": 15,
+    "rows": 15,
+    "size": 40,
+    "wallThickness": 2,
+}
+
+wall_coordinates = extract_wall_coordinates(robot_position, maze_options)
+print("Wall Coordinates:")
+print(wall_coordinates)
