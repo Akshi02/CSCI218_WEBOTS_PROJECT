@@ -217,23 +217,26 @@ print(wall_coordinates)
 
 q_table = [[0, 0, 0, 0], [0, 0, 0, 0]]
 
-gamma = 0.9
+gamma = 0.8
 
-reward = -100
-
-
-def computeReward(state, action):
-    if current_pos == goal_pos:
-        return 0
-
-    else:
-        return -1
-
+#reward = -100
 
 visited = []
 
 
-def compute_Qvalue(state, action, count=0):
+def computeReward(state):
+    
+    if state == goal_state:
+        return 100
+    
+    elif (state in visited):
+        return -10
+
+    else:
+        return 10
+
+
+def compute_Qvalue(state, action):
     global visited
 
     if state not in visited:
@@ -254,6 +257,8 @@ def compute_Qvalue(state, action, count=0):
         max(compute_Qvalue(state[1] + 1, 1, count + 1)),
         max(compute_Qvalue(state[1] - 1, 3, count + 1)),
     )
+    
+    
 
 
 def q_learning(state, action):
@@ -261,7 +266,7 @@ def q_learning(state, action):
 
     # q(state, action) = r(state, action) + gamma * Max[Q_nextState()]
 
-    reward = computeReward()
+    reward = computeReward(state)
 
     Q_next_state = computeNextState(state, action)
 
