@@ -272,6 +272,8 @@ def q_learning(state, action):
 
     q = compute_Qvalue(state, action)
     
+    q = reward + gamma * max(getNextStates(state))
+    
     q_table[state][action] = q
     
     
