@@ -46,6 +46,7 @@ ul_sensor_right.MODE_US_DIST_CM = "US-DIST-CM"
 # 3 represents left
 facing = 0
 
+wall_states = []
 
 # Not to be used. These functions are for making the actions simpler to read.
 def turn_right_90():
@@ -133,6 +134,59 @@ def move_right():
         turn_left_90()
     tank_drive.on(20, 20)
 
+def facevalue():
+    global facing
+
+    face_dir = ()
+
+    # facing up & down
+    if facing == 0 or facing == 2: 
+        face_dir = (0, 1, 0)
+    # facing right & left
+    elif facing == 1 or facing == 3: 
+        face_dir = (1, 0, 0)
+
+    return face_dir
+
+def get_state(x, y):
+    return (x//40, y//40)
+
+#next step: to use get_state to remove the wall state from the maze state make a function of it.
+
+def wall_tracker(x,y):
+    global facing
+    
+    if ul_sensor_front.distance_centimeters < 40:
+        if facing == 0:
+            y += 1
+        elif facing == 2:
+            y -= 1
+        elif facing == 1:
+            x += 1
+        elif facing == 3:
+            x -= 1
+            
+    if ul_sensor_right.distance_centimeters < 40:
+        if facing == 0:
+            x += 1
+        elif facing == 2:
+            x -= 1
+        elif facing == 1:
+            y -= 1
+        elif facing == 3:
+            y += 1
+    
+    if ul_sensor_left.distance_centimeters < 40:
+        if facing == 0:
+            x -= 1
+        elif facing == 2:
+            x += 1
+        elif facing == 1:
+            y += 1
+        elif facing == 3:
+            y -= 1
+    
+    return(wall_states.append((x,y)))
 
 # while True:
 #    if color_sensor_in1.reflected_light_intensity >= 40 and color_sensor_in2.reflected_light_intensity == 0:
@@ -155,62 +209,52 @@ def move_right():
     #print("Im in the loop")
     """
 
-# Akshita's States Defination:
+#Akshita's States Defination:
 
-# Define maze dimensions
 maze_width = 15
 maze_height = 15
 
 # Define states
 states = [(x, y) for x in range(maze_width) for y in range(maze_height)]
 
-# Print the defined states
-print("Defined States:")
-print(states)
+# Choose a state as the starting point
+start_index = 0  # Change this index as needed
+start = states[start_index]
+
+# Distance to target
+distance = ul_sensor_front.distance_centimeters
+
+# Direction to target
+direction = facevalue()
+
+# Calculate target coordinates
+magnitude = math.sqrt(sum(d**2 for d in direction))
+target = [round(start[i] + distance * direction[i] / magnitude) for i in range(2)]
+
+# Convert the target coordinates to integers
+target = tuple(map(int, target))
+
+print(f"Starting point: {start}")
+print(f"Distance to target: {distance}")
+print(f"Direction to target: {direction}")
+print(f"Target coordinates: {target}")
+print(f"GPS Sensor Coordinates: ({gps_sensor.x}, {gps_sensor.y})")
+
+'''
+wall_coord = wall_tracker(gps_sensor.x, gps_sensor.y)
+print(f"Wall coordinates: {wall_coord}")
 
 
-def extract_wall_coordinates(gps_sensor_position, maze_options):
-    if not gps_sensor_position:
-        print("GPSSensor not found in the robot configuration.")
-        return []
+Wcoord = get_state(wall_coord[0], wall_coord[1])
+print(f"Wall states: {Wcoord}")
+'''
+wall_coord = get_state(gps_sensor.x, gps_sensor.y)
 
-    maze_columns = maze_options.get("columns", 0)
-    maze_rows = maze_options.get("rows", 0)
-    maze_size = maze_options.get("size", 0)
-    wall_thickness = maze_options.get("wallThickness", 0)
+Wcoord = wall_tracker(wall_coord[0], wall_coord[1])
+#print(f"Wall state coordinates: {Wcoord}")
 
-    robot_position = (int(gps_sensor_position[0]), int(gps_sensor_position[1]))
-
-    walls = []
-
-    for x in range(maze_columns):
-        for y in range(maze_rows):
-            if x == 0 or x == maze_columns - 1 or y == 0 or y == maze_rows - 1:
-                # Considering outer walls as obstacles
-                walls.append((x, y))
-            elif (
-                x % maze_size == 0 and y % maze_size == 0
-            ):  # Assuming walls are placed at regular intervals
-                distance_to_robot = math.sqrt(
-                    (x - robot_position[0]) ** 2 + (y - robot_position[1]) ** 2
-                )
-                walls.append((x, y, distance_to_robot))  # Include distance information
-
-    return walls
-
-
-# Example usage
-robot_position = (gps_sensor.X, gps_sensor.Y)  # Replace with actual GPS sensor position
-maze_options = {
-    "columns": 15,
-    "rows": 15,
-    "size": 40,
-    "wallThickness": 2,
-}
-
-wall_coordinates = extract_wall_coordinates(robot_position, maze_options)
-print("Wall Coordinates:")
-print(wall_coordinates)
+#wall_states = []
+print(f"Wall states: {wall_states}")
 
 # ------------------------------------------------------------------------------------------------------------------------------
 # Joseph's code
