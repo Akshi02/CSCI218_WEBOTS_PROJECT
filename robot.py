@@ -134,19 +134,7 @@ def move_right():
         turn_left_90()
     tank_drive.on(20, 20)
 
-def facevalue():
-    global facing
-
-    face_dir = ()
-
-    # facing up & down
-    if facing == 0 or facing == 2: 
-        face_dir = (0, 1, 0)
-    # facing right & left
-    elif facing == 1 or facing == 3: 
-        face_dir = (1, 0, 0)
-
-    return face_dir
+#Akshita's Functions --------------------------------------------------------------------------------------------------------------------------------------
 
 def get_state(x, y):
     return (x//40, y//40)
@@ -223,46 +211,7 @@ maze_width = 15
 maze_height = 15
 
 # Define states
-states = [(x, y) for x in range(maze_width) for y in range(maze_height)]
-
-# Choose a state as the starting point
-start_index = 0  # Change this index as needed
-start = states[start_index]
-
-# Distance to target
-distance = ul_sensor_front.distance_centimeters
-
-# Direction to target
-direction = facevalue()
-
-# Calculate target coordinates
-magnitude = math.sqrt(sum(d**2 for d in direction))
-target = [round(start[i] + distance * direction[i] / magnitude) for i in range(2)]
-
-# Convert the target coordinates to integers
-target = tuple(map(int, target))
-
-print(f"Starting point: {start}")
-print(f"Distance to target: {distance}")
-print(f"Direction to target: {direction}")
-print(f"Target coordinates: {target}")
-print(f"GPS Sensor Coordinates: ({gps_sensor.x}, {gps_sensor.y})")
-
-'''
-wall_coord = wall_tracker(gps_sensor.x, gps_sensor.y)
-print(f"Wall coordinates: {wall_coord}")
-
-
-Wcoord = get_state(wall_coord[0], wall_coord[1])
-print(f"Wall states: {Wcoord}")
-'''
-wall_coord = get_state(gps_sensor.x, gps_sensor.y)
-
-Wcoord = wall_tracker(wall_coord[0], wall_coord[1])
-#print(f"Wall state coordinates: {Wcoord}")
-
-#wall_states = []
-print(f"Wall states: {wall_states}")
+states = [(x-7, y-7) for x in range(maze_width) for y in range(maze_height)]
 
 # ------------------------------------------------------------------------------------------------------------------------------
 # Joseph's code
