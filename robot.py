@@ -74,6 +74,8 @@ def turn_left_90():
 # Actions
 def move_up():
     global facing
+    
+    location = gps_sensor.y
 
     # facing right
     if facing == 1:
@@ -86,12 +88,16 @@ def move_up():
     elif facing == 3:
         turn_right_90()
 
-    tank_drive.on(20, 20)
+    while (gps_sensor.y < location+40):
+        tank_drive.on(20, 20)
 
+    tank_drive.on(0, 0)
 
 def move_down():
     global facing
 
+    location = gps_sensor.y
+    
     # facing up
     if facing == 0:
         turn_left_90()
@@ -103,10 +109,15 @@ def move_down():
     elif facing == 3:
         turn_left_90()
 
-    tank_drive.on(20, 20)
+    while gps_sensor.y < location-40 :
+        tank_drive.on(20, 20)
+        
+    tank_drive.on(0, 0)
 
 
 def move_left():
+    location = gps_sensor.x
+    
     # facing up
     if facing == 0:
         turn_left_90()
@@ -118,10 +129,15 @@ def move_left():
     elif facing == 2:
         turn_left_90()
 
-    tank_drive.on(20, 20)
+    while gps_sensor.x < location-40 :
+        tank_drive.on(20, 20)
 
+    tank_drive.on(0, 0)
 
 def move_right():
+    
+    location = gps_sensor.x
+    
     # facing up
     if facing == 0:
         turn_right_90()
@@ -132,7 +148,11 @@ def move_right():
     elif facing == 3:
         turn_left_90()
         turn_left_90()
-    tank_drive.on(20, 20)
+    
+    while gps_sensor.x < location+40 :
+        tank_drive.on(20, 20)
+        
+    tank_drive.on(0, 0)
 
 #Akshita's Functions --------------------------------------------------------------------------------------------------------------------------------------
 
