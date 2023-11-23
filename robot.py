@@ -48,6 +48,7 @@ facing = 0
 
 wall_states = []
 
+
 # Not to be used. These functions are for making the actions simpler to read.
 def turn_right_90():
     global facing
@@ -74,7 +75,7 @@ def turn_left_90():
 # Actions
 def move_up():
     global facing
-    
+
     location = gps_sensor.y
 
     # facing right
@@ -88,16 +89,17 @@ def move_up():
     elif facing == 3:
         turn_right_90()
 
-    while (gps_sensor.y < location+40):
+    while gps_sensor.y < location + 40:
         tank_drive.on(20, 20)
 
     tank_drive.on(0, 0)
+
 
 def move_down():
     global facing
 
     location = gps_sensor.y
-    
+
     # facing up
     if facing == 0:
         turn_left_90()
@@ -109,15 +111,15 @@ def move_down():
     elif facing == 3:
         turn_left_90()
 
-    while gps_sensor.y < location-40 :
+    while gps_sensor.y < location - 40:
         tank_drive.on(20, 20)
-        
+
     tank_drive.on(0, 0)
 
 
 def move_left():
     location = gps_sensor.x
-    
+
     # facing up
     if facing == 0:
         turn_left_90()
@@ -129,15 +131,15 @@ def move_left():
     elif facing == 2:
         turn_left_90()
 
-    while gps_sensor.x < location-40 :
+    while gps_sensor.x < location - 40:
         tank_drive.on(20, 20)
 
     tank_drive.on(0, 0)
 
+
 def move_right():
-    
     location = gps_sensor.x
-    
+
     # facing up
     if facing == 0:
         turn_right_90()
@@ -148,61 +150,66 @@ def move_right():
     elif facing == 3:
         turn_left_90()
         turn_left_90()
-    
-    while gps_sensor.x < location+40 :
+
+    while gps_sensor.x < location + 40:
         tank_drive.on(20, 20)
-        
+
     tank_drive.on(0, 0)
 
-#Akshita's Functions --------------------------------------------------------------------------------------------------------------------------------------
+
+# Akshita's Functions --------------------------------------------------------------------------------------------------------------------------------------
+
 
 def get_state(x, y):
-    return (x//40, y//40)
+    return (x // 40, y // 40)
 
-#next step: to use get_state to remove the wall state from the maze state make a function of it.
 
-def wall_tracker(x,y):
+# next step: to use get_state to remove the wall state from the maze state make a function of it.
+
+
+def wall_tracker(x, y):
     global facing
-    
+
     if ul_sensor_front.distance_centimeters < 40:
         if facing == 0:
-            wall_states.append(((x,y),(x,y+1)))
+            wall_states.append(((x, y), (x, y + 1)))
         elif facing == 2:
-            wall_states.append(((x,y),(x,y-1)))
+            wall_states.append(((x, y), (x, y - 1)))
         elif facing == 1:
-            wall_states.append(((x,y),(x+1,y)))
+            wall_states.append(((x, y), (x + 1, y)))
         elif facing == 3:
-            wall_states.append(((x,y),(x-1,y)))
-            
+            wall_states.append(((x, y), (x - 1, y)))
+
     if ul_sensor_right.distance_centimeters < 40:
         if facing == 0:
-            wall_states.append(((x,y),(x+1,y)))
+            wall_states.append(((x, y), (x + 1, y)))
         elif facing == 2:
-            wall_states.append(((x,y),(x-1,y)))
+            wall_states.append(((x, y), (x - 1, y)))
         elif facing == 1:
-            wall_states.append(((x,y),(x,y-1)))
+            wall_states.append(((x, y), (x, y - 1)))
         elif facing == 3:
-            wall_states.append(((x,y),(x,y+1)))
-    
+            wall_states.append(((x, y), (x, y + 1)))
+
     if ul_sensor_left.distance_centimeters < 40:
         if facing == 0:
-            wall_states.append(((x,y),(x-1,y)))
+            wall_states.append(((x, y), (x - 1, y)))
         elif facing == 2:
-            wall_states.append(((x,y),(x+1,y)))
+            wall_states.append(((x, y), (x + 1, y)))
         elif facing == 1:
-            wall_states.append(((x,y),(x,y+1)))
+            wall_states.append(((x, y), (x, y + 1)))
         elif facing == 3:
-            wall_states.append(((x,y),(x,y-1)))
+            wall_states.append(((x, y), (x, y - 1)))
 
     if ul_sensor_back.distance_centimeters < 40:
         if facing == 0:
-            wall_states.append(((x,y),(x,y-1)))
+            wall_states.append(((x, y), (x, y - 1)))
         elif facing == 2:
-            wall_states.append(((x,y),(x,y+1)))
+            wall_states.append(((x, y), (x, y + 1)))
         elif facing == 1:
-            wall_states.append(((x,y),(x-1,y)))
+            wall_states.append(((x, y), (x - 1, y)))
         elif facing == 3:
-            wall_states.append(((x,y),(x+1,y)))
+            wall_states.append(((x, y), (x + 1, y)))
+
 
 # while True:
 #    if color_sensor_in1.reflected_light_intensity >= 40 and color_sensor_in2.reflected_light_intensity == 0:
@@ -225,13 +232,13 @@ def wall_tracker(x,y):
     #print("Im in the loop")
     """
 
-#Akshita's States Defination:
+# Akshita's States Defination:
 
 maze_width = 15
 maze_height = 15
 
 # Define states
-states = [(x-7, y-7) for x in range(maze_width) for y in range(maze_height)]
+states = [(x - 7, y - 7) for x in range(maze_width) for y in range(maze_height)]
 
 # ------------------------------------------------------------------------------------------------------------------------------
 # Joseph's code
@@ -305,7 +312,6 @@ def computeQValue(state, action):
 
 
 def q_training():
-<<<<<<< HEAD
     run = True
 
     while run:
@@ -331,7 +337,3 @@ def q_training():
                 next_action = i
 
         nextMove(next_state, next_action)
-=======
-    
-    
->>>>>>> c6ae2854ea682d64837898cb1cfa7a9de35c182d
