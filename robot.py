@@ -158,35 +158,43 @@ def wall_tracker(x,y):
     
     if ul_sensor_front.distance_centimeters < 40:
         if facing == 0:
-            y += 1
+            wall_states.append(((x,y),(x,y+1)))
         elif facing == 2:
-            y -= 1
+            wall_states.append(((x,y),(x,y-1)))
         elif facing == 1:
-            x += 1
+            wall_states.append(((x,y),(x+1,y)))
         elif facing == 3:
-            x -= 1
+            wall_states.append(((x,y),(x-1,y)))
             
     if ul_sensor_right.distance_centimeters < 40:
         if facing == 0:
-            x += 1
+            wall_states.append(((x,y),(x+1,y)))
         elif facing == 2:
-            x -= 1
+            wall_states.append(((x,y),(x-1,y)))
         elif facing == 1:
-            y -= 1
+            wall_states.append(((x,y),(x,y-1)))
         elif facing == 3:
-            y += 1
+            wall_states.append(((x,y),(x,y+1)))
     
     if ul_sensor_left.distance_centimeters < 40:
         if facing == 0:
-            x -= 1
+            wall_states.append(((x,y),(x-1,y)))
         elif facing == 2:
-            x += 1
+            wall_states.append(((x,y),(x+1,y)))
         elif facing == 1:
-            y += 1
+            wall_states.append(((x,y),(x,y+1)))
         elif facing == 3:
-            y -= 1
-    
-    return(wall_states.append((x,y)))
+            wall_states.append(((x,y),(x,y-1)))
+
+    if ul_sensor_back.distance_centimeters < 40:
+        if facing == 0:
+            wall_states.append(((x,y),(x,y-1)))
+        elif facing == 2:
+            wall_states.append(((x,y),(x,y+1)))
+        elif facing == 1:
+            wall_states.append(((x,y),(x-1,y)))
+        elif facing == 3:
+            wall_states.append(((x,y),(x+1,y)))
 
 # while True:
 #    if color_sensor_in1.reflected_light_intensity >= 40 and color_sensor_in2.reflected_light_intensity == 0:
