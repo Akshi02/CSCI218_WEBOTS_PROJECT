@@ -233,32 +233,18 @@ def computeReward(state):
         return -10
 
     else:
-        return 10
-
-
-def compute_Qvalue(state, action):
-    global visited
-
-    if state not in visited:
-        visited.append(state)
-        reward = 10
-    # define goal state
-    elif state == goal_state:
-        reward = 10000
-    else:
-        reward = -10
-
-    if count == 100:
-        return 0
-
-    q = reward + gamma * max(
-        compute_Qvalue(state[0] + 1, 0, count + 1),
-        max(compute_Qvalue(state[0] - 1, 2, count + 1)),
-        max(compute_Qvalue(state[1] + 1, 1, count + 1)),
-        max(compute_Qvalue(state[1] - 1, 3, count + 1)),
-    )
+        return 10    
     
+def getNextStates(state): #returns the q values of next possible states
     
+    q0 = computeReward(stateLeft) + gamma * max(q_table[stateleft][0], q_table[stateleft][1], q_table[stateleft][2], q_table[stateleft][3])
+    q1 = computeReward(stateUp) + gamma * max(q_table[stateUp][0], q_table[stateUp][1], q_table[stateUp][2], q_table[stateUp][3])
+    q2 = computeReward(stateRight) + gamma * max(q_table[stateRight][0], q_table[stateRight][1], q_table[stateRight][2], q_table[stateRight][3])
+    q3 = computeReward(stateDown) + gamma * max(q_table[stateDown][0], q_table[stateDown][1], q_table[stateDown][2], q_table[stateDown][3])
+    
+    next_states = (q0, q1, q2, q3)
+    
+    return next_states
 
 
 def q_learning(state, action):
@@ -267,10 +253,6 @@ def q_learning(state, action):
     # q(state, action) = r(state, action) + gamma * Max[Q_nextState()]
 
     reward = computeReward(state)
-
-    Q_next_state = computeNextState(state, action)
-
-    q = compute_Qvalue(state, action)
     
     q = reward + gamma * max(getNextStates(state))
     
