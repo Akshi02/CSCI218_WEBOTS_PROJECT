@@ -27,6 +27,7 @@ radio = Radio()
 ul_sensor_front = UltrasonicSensor(INPUT_2)
 ul_sensor_left = UltrasonicSensor(INPUT_3)
 ul_sensor_right = UltrasonicSensor(INPUT_4)
+ul_sensor_back = UltrasonicSensor(INPUT_7)
 gps_sensor = GPSSensor(INPUT_6)
 gyro_sensor = GyroSensor(INPUT_5)
 
@@ -156,6 +157,14 @@ def move_right():
 
     tank_drive.on(0, 0)
 
+def is_valid_action(state, next_state):
+    if next_state[0] < -7 or next_state[0] > 7 or next_state[1] < -7 or next_state[1] > 7: 
+        return False
+    elif (state, next_state) in wall_states: 
+        return False
+    else: 
+        return True
+    
 
 # Akshita's Functions --------------------------------------------------------------------------------------------------------------------------------------
 
@@ -209,28 +218,6 @@ def wall_tracker(x, y):
             wall_states.append(((x, y), (x - 1, y)))
         elif facing == 3:
             wall_states.append(((x, y), (x + 1, y)))
-
-
-# while True:
-#    if color_sensor_in1.reflected_light_intensity >= 40 and color_sensor_in2.reflected_light_intensity == 0:
-"""
-    if ul_sensor_front.distance_centimeters < 10 and ul_sensor_left.distance_centimeters < ul_sensor_right.distance_centimeters:
-        while gyro_sensor.angle < cur_angle + 90:
-            tank_drive.on((10), -15)
-        cur_angle = gyro_sensor.angle
-        #break
-        pass
-    if ul_sensor_front.distance_centimeters < 10 and ul_sensor_left.distance_centimeters > ul_sensor_right.distance_centimeters:
-        while gyro_sensor.angle > cur_angle - 90:
-            tank_drive.on((-15), 10)
-        cur_angle = gyro_sensor.angle
-        #break
-        pass
-    tank_drive.on((50), 50)
-    print(gps_sensor.x)
-    print(gps_sensor.y)
-    #print("Im in the loop")
-    """
 
 # Akshita's States Defination:
 
