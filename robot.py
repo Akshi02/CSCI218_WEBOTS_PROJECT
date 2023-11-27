@@ -9,6 +9,7 @@ from ev3dev2.button import Button
 from ev3dev2.sensor import *
 from ev3dev2.sensor.lego import *
 from ev3dev2.sensor.virtual import *
+from sys import maaxint
 
 # Create the sensors and motors objects
 motorA = LargeMotor(OUTPUT_A)
@@ -157,26 +158,35 @@ def move_right():
 
     tank_drive.on(0, 0)
 
+
 def is_valid_action(state, next_state):
-    if next_state[0] < -7 or next_state[0] > 7 or next_state[1] < -7 or next_state[1] > 7: 
+    if (
+        next_state[0] < -7
+        or next_state[0] > 7
+        or next_state[1] < -7
+        or next_state[1] > 7
+    ):
         return False
-    elif (state, next_state) in wall_states: 
+    elif (state, next_state) in wall_states:
         return False
-    else: 
+    else:
         return True
-    
-def nextMove(next_state, next_action): 
-    if next_action == 0: 
+
+
+def nextMove(next_state, next_action):
+    if next_action == 0:
         move_up()
     elif next_action == 1:
         move_right()
-    elif next_action == 2: 
+    elif next_action == 2:
         move_down()
-    elif next_action == 3: 
+    elif next_action == 3:
         move_right()
-        
+
+
 def get_current_state():
     return get_state(gps_sensor.x, gps_sensor.y)
+
 
 # Akshita's Functions --------------------------------------------------------------------------------------------------------------------------------------
 
@@ -230,6 +240,7 @@ def wall_tracker(x, y):
             wall_states.append(((x, y), (x - 1, y)))
         elif facing == 3:
             wall_states.append(((x, y), (x + 1, y)))
+
 
 # Akshita's States Defination:
 
@@ -303,11 +314,31 @@ def computeQValue(state, action):
 
     # q(state, action) = r(state, action) + gamma * Max[Q_nextState()]
 
-    reward = computeReward(state)
+    next_state = state
 
-    q = reward + gamma * max(getNextStates(state))
+    if action == 0:  # go up
+        next_state[1] = next_state[1] + 1
 
-    q_table[state][action] = q
+    elif action == 1:  # go right
+        next_state[0] = next_state[0] + 1
+
+    elif action == 2:  # go down
+        next_state[1] = next_state[1] - 1
+
+    else:  # go left
+        next_state[0] = next_state[0] - 1
+
+    if is_valid_action(state, next_state):
+        reward = computeReward(next_state)
+
+        q = reward + gamma * max(getNextStates(next_state))
+
+        q_table[state][action] = q
+
+        return q
+
+    else:
+        return _(-maxint - 1)
 
 
 def q_training():
@@ -319,7 +350,9 @@ def q_training():
         next_state = 0
         next_action = 0
 
-        current_state = getState()
+        current_state = get_current_state()
+
+        # checking if the state is valid
 
         Q_up = computeQValue(current_state, 0)
         Q_right = computeQValue(current_state, 1)
