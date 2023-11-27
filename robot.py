@@ -165,6 +165,18 @@ def is_valid_action(state, next_state):
     else: 
         return True
     
+def nextMove(next_state, next_action): 
+    if next_action == 0: 
+        move_up()
+    elif next_action == 1:
+        move_right()
+    elif next_action == 2: 
+        move_down()
+    elif next_action == 3: 
+        move_right()
+        
+def get_current_state():
+    return get_state(gps_sensor.x, gps_sensor.y)
 
 # Akshita's Functions --------------------------------------------------------------------------------------------------------------------------------------
 
