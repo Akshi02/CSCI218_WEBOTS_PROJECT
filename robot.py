@@ -9,7 +9,7 @@ from ev3dev2.button import Button
 from ev3dev2.sensor import *
 from ev3dev2.sensor.lego import *
 from ev3dev2.sensor.virtual import *
-from sys import maaxint
+from sys import maxint
 
 # Create the sensors and motors objects
 motorA = LargeMotor(OUTPUT_A)
