@@ -249,7 +249,7 @@ maze_height = 15
 
 # Define states
 states = [(x - 7, y - 7) for x in range(maze_width) for y in range(maze_height)]
-
+goal_state = (7, 7)
 # ------------------------------------------------------------------------------------------------------------------------------
 # Joseph's code
 
@@ -341,6 +341,10 @@ def computeQValue(state, action):
         return _(-maxint - 1)
 
 
+def get_q_value(state, action):
+    return q_table[state][action]
+
+
 def q_training():
     run = True
 
@@ -368,4 +372,39 @@ def q_training():
                 next_state = Q_options[i]
                 next_action = i
 
+        # need to stop move incase robot reaches goal state (Break Loop)
+
         nextMove(next_state, next_action)
+
+        if get_current_state() == goal_state:
+            run = False
+
+
+# uses trained q table to solve the maze
+def q_testing():
+    run = True
+
+    while run:
+        next_state = 0
+        next_action = 0
+
+        current_state = get_current_state
+
+        Q_up = get_q_value(current_state, 0)
+        Q_right = get_q_value(current_state, 1)
+        Q_down = get_q_value(current_state, 2)
+        Q_left = get_q_value(current_state, 3)
+
+        best_Q = Q_up
+
+        Q_options = (Q_right, Q_down, Q_left)
+
+        for i in range(len(Q_options)):
+            if Q_options[i] > best_Q:
+                next_state = Q_options[i]
+                next_action = i
+
+        nextMove(next_state, next_action)
+
+        if get_current_state() == goal_state:
+            run = False
