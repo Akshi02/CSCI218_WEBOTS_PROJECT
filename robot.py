@@ -274,9 +274,9 @@ facing = 0
 
 wall_states = set()
 
-cell_size = 60 - 8
+cell_size = 60
 
-move_speed = 30
+move_speed = 50
 
 
 # Not to be used. These functions are for making the actions simpler to read.
@@ -396,9 +396,9 @@ def move_right():
 def is_valid_action(state, next_state):
     if (
         next_state[0] < 0
-        or next_state[0] > 14
+        or next_state[0] > maze_width-1
         or next_state[1] < 0
-        or next_state[1] > 14
+        or next_state[1] > maze_width-1
     ):
         return False
     elif (state, next_state) in wall_states:
@@ -426,7 +426,7 @@ def get_current_state():
 
 
 def get_state(x, y):
-    return (int(x // cell_size) + 7, int(y // cell_size) + 7)
+    return (int(int(x) // cell_size) + maze_width//2, int(int(y) // cell_size) + maze_width//2 )
 
 
 # next step: to use get_state to remove the wall state from the maze state make a function of it.
@@ -478,23 +478,22 @@ def wall_tracker(x, y):
 
 # Akshita's States Defination:
 
-maze_width = 15
-maze_height = 15
+maze_width = 5
+maze_height = 5
 
 # Define states
 states = [(x, y) for x in range(maze_width) for y in range(maze_height)]
-goal_state = (14, 14)
+goal_state = (maze_height-1, maze_width-1)
 # ------------------------------------------------------------------------------------------------------------------------------
 # Joseph's code
 
-q_table = [[0, 0, 0, 0] for i in range(225)]
-
+q_table = [[0, 0, 0, 0] for i in range(maze_height * maze_width)]
+#q_table = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [-9007199254740992, -2.0, -9007199254740992, -9007199254740992], [0, 0, 0, 0], [0, 0, 0, 0], [-2.0, -2.0, -9007199254740992, -9007199254740992], [20.8928, -9007199254740992, 0.8928000000000011, -9007199254740992], [-9007199254740992, 20.8928, 0.8928000000000011, 0.8928000000000011], [0, 0, 0, 0], [0, 0, 0, 0], [20.8928, 0.8928000000000011, -9007199254740992, -9007199254740992], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [-9007199254740992, 18.0, -9007199254740992, 9.52], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
 gamma = 0.8
 
 # reward = -100
 
-visited = []
-
+visited = set()
 
 def computeReward(state):
     if state == goal_state:
@@ -504,7 +503,6 @@ def computeReward(state):
         return -10
 
     else:
-        visited.append(state)
         return 10
 
 
@@ -513,36 +511,50 @@ def getNextStates(state):  # returns the q values of next possible states
     stateRight = (state[0] + 1, state[1])
     stateUp = (state[0], state[1] + 1)
     stateDown = (state[0], state[1] - 1)
+    
+    q_values = []
+    
+    for next_state in [stateLeft, stateRight, stateUp, stateDown]:
+        if is_valid_action(state, next_state): 
+            q_value = computeReward(next_state) + gamma * max(
+                q_table[maze_width * next_state[0] + next_state[1]][0],
+                q_table[maze_width * next_state[0] + next_state[1]][1],
+                q_table[maze_width * next_state[0] + next_state[1]][2],
+                q_table[maze_width * next_state[0] + next_state[1]][3],
+                )
+            q_values.append(q_value)
+            
 
-    q0 = computeReward(stateLeft) + gamma * max(
-        q_table[15 * stateLeft[0] + stateLeft[1]][0],
-        q_table[15 * stateLeft[0] + stateLeft[1]][1],
-        q_table[15 * stateLeft[0] + stateLeft[1]][2],
-        q_table[15 * stateLeft[0] + stateLeft[1]][3],
-    )
-    q1 = computeReward(stateUp) + gamma * max(
-        q_table[15 * stateUp[0] + stateUp[1]][0],
-        q_table[15 * stateUp[0] + stateUp[1]][1],
-        q_table[15 * stateUp[0] + stateUp[1]][2],
-        q_table[15 * stateUp[0] + stateUp[1]][3],
-    )
-    q2 = computeReward(stateRight) + gamma * max(
-        q_table[15 * stateRight[0] + stateRight[1]][0],
-        q_table[15 * stateRight[0] + stateRight[1]][1],
-        q_table[15 * stateRight[0] + stateRight[1]][2],
-        q_table[15 * stateRight[0] + stateRight[1]][3],
-    )
-    q3 = computeReward(stateDown) + gamma * max(
-        q_table[15 * stateDown[0] + stateDown[1]][0],
-        q_table[15 * stateDown[0] + stateDown[1]][1],
-        q_table[15 * stateDown[0] + stateDown[1]][2],
-        q_table[15 * stateDown[0] + stateDown[1]][3],
-    )
+    #q0 = computeReward(stateLeft) + gamma * max(
+        #q_table[maze_width * stateLeft[0] + stateLeft[1]][0],
+        #q_table[maze_width * stateLeft[0] + stateLeft[1]][1],
+        #q_table[maze_width * stateLeft[0] + stateLeft[1]][2],
+        #q_table[maze_width * stateLeft[0] + stateLeft[1]][3],
+    #)
+    #q1 = computeReward(stateUp) + gamma * max(
+        #q_table[maze_width * stateUp[0] + stateUp[1]][0],
+        #q_table[maze_width * stateUp[0] + stateUp[1]][1],
+        #q_table[maze_width * stateUp[0] + stateUp[1]][2],
+        #q_table[maze_width * stateUp[0] + stateUp[1]][3],
+    #)
+    #q2 = computeReward(stateRight) + gamma * max(
+        #q_table[maze_width * stateRight[0] + stateRight[1]][0],
+        #q_table[maze_width * stateRight[0] + stateRight[1]][1],
+        #q_table[maze_width * stateRight[0] + stateRight[1]][2],
+        #q_table[maze_width * stateRight[0] + stateRight[1]][3],
+    #)
+    #q3 = computeReward(stateDown) + gamma * max(
+        #q_table[maze_width * stateDown[0] + stateDown[1]][0],
+        #q_table[maze_width * stateDown[0] + stateDown[1]][1],
+        #q_table[maze_width * stateDown[0] + stateDown[1]][2],
+        #q_table[maze_width * stateDown[0] + stateDown[1]][3],
+    #)
 
-    next_states = (q0, q1, q2, q3)
+    #next_states = (q0, q1, q2, q3)
 
-    return next_states
+    #return next_states
 
+    return tuple(q_values)
 
 def computeQValue(state, action):
     # q_table = [[0,0,0,0],[0,0,0,0]] list of states and their actions inside them
@@ -553,19 +565,20 @@ def computeQValue(state, action):
 
     if is_valid_action(state, next_state):
         reward = computeReward(next_state)
-
+        
         q = reward + gamma * max(getNextStates(next_state))
 
-        q_table[15 * state[0] + state[1]][action] = q
+        q_table[maze_width * state[0] + state[1]][action] = q
 
         return q
 
     else:
+        q_table[maze_width * state[0] + state[1]][action] = -maxint - 1
         return -maxint - 1
 
 
 def get_q_value(state, action):
-    return q_table[15 * state[0] + state[1]][action]
+    return q_table[maze_width * state[0] + state[1]][action]
 
 
 def get_next_state(state, action):
@@ -646,12 +659,13 @@ def q_testing():
 
 def main():
     # q_training()
-
-    for i in range(20):
+    
+    for i in range(10):
         next_state = 0
         next_action = 0
 
         current_state = get_current_state()
+        print(current_state)
 
         # get surrounding walls
         wall_tracker(current_state[0], current_state[1])
@@ -661,6 +675,10 @@ def main():
         Q_down = computeQValue(current_state, 2)
         Q_left = computeQValue(current_state, 3)
 
+        #Q_up = get_q_value(current_state, 0)
+        #Q_right = get_q_value(current_state, 1)
+        #Q_down = get_q_value(current_state, 2)
+        #Q_left = get_q_value(current_state, 3)
         best_Q = Q_up
 
         Q_options = (Q_right, Q_down, Q_left)
@@ -670,10 +688,12 @@ def main():
                 next_state = get_next_state(current_state, i + 1)
                 next_action = i + 1
 
+        visited.add(current_state)
         nextMove(next_state, next_action)
-
+        
         if get_current_state() == goal_state:
             run = False
 
+    print(q_table)
 
 main()
