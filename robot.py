@@ -14,7 +14,6 @@ from sys import maxint
 
 from math import pi
 
-
 def circle_angle(gyro):
     """
     As the gryo rotates clockwise the angle increases, it will increase
@@ -69,7 +68,6 @@ def circle_angle(gyro):
 
     return result
 
-
 class Wheel(object):
     """
     A base class for various types of wheels, tires, etc.  All units are in mm.
@@ -100,7 +98,6 @@ class Wheel(object):
     def radius_mm(self):
         return float(self.diameter_mm / 2)
 
-
 class EV3Tire(Wheel):
     """
     part number 44309
@@ -109,7 +106,6 @@ class EV3Tire(Wheel):
 
     def __init__(self):
         Wheel.__init__(self, 43.2, 21)
-
 
 class MoveDifferential(MoveTank):
     def __init__(
@@ -229,7 +225,6 @@ class MoveDifferential(MoveTank):
                     speed, degrees_error, brake, block, error_margin, use_gyro
                 )
 
-
 STUD_MM = 8
 
 gyro_sensor = GyroSensor(INPUT_5)
@@ -243,24 +238,13 @@ right_motor = motorB
 tank_drive = MoveDifferential(
     OUTPUT_A, OUTPUT_B, EV3Tire, 16 * STUD_MM, gyro=gyro_sensor
 )
-steering_drive = MoveSteering(OUTPUT_A, OUTPUT_B)
 
-spkr = Sound()
-btn = Button()
-radio = Radio()
-
-# color_sensor_in1 = ColorSensor(INPUT_1)
-# color_sensor_in2 = ColorSensor(INPUT_2)
 ul_sensor_front = UltrasonicSensor(INPUT_2)
 ul_sensor_left = UltrasonicSensor(INPUT_3)
 ul_sensor_right = UltrasonicSensor(INPUT_4)
 ul_sensor_back = UltrasonicSensor(INPUT_7)
 gps_sensor = GPSSensor(INPUT_6)
 
-
-motorC = LargeMotor(OUTPUT_C)  # Magnet
-
-# Here is where your code starts
 ul_sensor_front.MODE_US_DIST_CM = "US-DIST-CM"
 ul_sensor_left.MODE_US_DIST_CM = "US-DIST-CM"
 ul_sensor_right.MODE_US_DIST_CM = "US-DIST-CM"
@@ -278,35 +262,22 @@ cell_size = 60
 
 move_speed = 50
 
-
 # Not to be used. These functions are for making the actions simpler to read.
 def turn_right_90():
     global facing
-
-    # angle = gyro_sensor.angle
-    # while gyro_sensor.angle < angle + 87:
-    # steering_drive.on(100, 20)
-    # tank_drive.on(0, 0)
 
     tank_drive.turn_degrees(30, 90, use_gyro=True)
 
     facing += 1
     facing %= 4
 
-
 def turn_left_90():
     global facing
-
-    # angle = gyro_sensor.angle
-    # while gyro_sensor.angle > angle - 85:
-    # tank_drive.on(-10, 20)
-    # tank_drive.on(0, 0)
 
     tank_drive.turn_degrees(30, -90, use_gyro=True)
 
     facing -= 1
     facing %= 4
-
 
 # Actions
 def move_up():
@@ -330,7 +301,6 @@ def move_up():
 
     tank_drive.on(0, 0)
 
-
 def move_down():
     global facing
 
@@ -352,7 +322,6 @@ def move_down():
 
     tank_drive.on(0, 0)
 
-
 def move_left():
     location = gps_sensor.x
 
@@ -371,7 +340,6 @@ def move_left():
         tank_drive.on(move_speed, move_speed)
 
     tank_drive.on(0, 0)
-
 
 def move_right():
     location = gps_sensor.x
@@ -392,7 +360,6 @@ def move_right():
 
     tank_drive.on(0, 0)
 
-
 def is_valid_action(state, next_state):
     if (
         next_state[0] < 0
@@ -406,7 +373,6 @@ def is_valid_action(state, next_state):
     else:
         return True
 
-
 def nextMove(next_state, next_action):
     if next_action == 0:
         move_up()
@@ -417,21 +383,15 @@ def nextMove(next_state, next_action):
     elif next_action == 3:
         move_left()
 
-
 def get_current_state():
     return get_state(gps_sensor.x, gps_sensor.y)
 
-
 # Akshita's Functions --------------------------------------------------------------------------------------------------------------------------------------
-
 
 def get_state(x, y):
     return (int(int(x) // cell_size) + maze_width//2, int(int(y) // cell_size) + maze_width//2 )
 
-
 # next step: to use get_state to remove the wall state from the maze state make a function of it.
-
-
 def wall_tracker(x, y):
     global facing
 
@@ -475,7 +435,6 @@ def wall_tracker(x, y):
         elif facing == 3:
             wall_states.add(((x, y), (x + 1, y)))
 
-
 # Akshita's States Defination:
 
 maze_width = 5
@@ -505,7 +464,6 @@ def computeReward(state):
     else:
         return 10
 
-
 def getNextStates(state):  # returns the q values of next possible states
     stateLeft = (state[0] - 1, state[1])
     stateRight = (state[0] + 1, state[1])
@@ -523,7 +481,6 @@ def getNextStates(state):  # returns the q values of next possible states
                 q_table[maze_width * next_state[0] + next_state[1]][3],
                 )
             q_values.append(q_value)
-            
 
     #q0 = computeReward(stateLeft) + gamma * max(
         #q_table[maze_width * stateLeft[0] + stateLeft[1]][0],
@@ -576,10 +533,8 @@ def computeQValue(state, action):
         q_table[maze_width * state[0] + state[1]][action] = -maxint - 1
         return -maxint - 1
 
-
 def get_q_value(state, action):
     return q_table[maze_width * state[0] + state[1]][action]
-
 
 def get_next_state(state, action):
     if action == 0:  # go up
@@ -593,7 +548,6 @@ def get_next_state(state, action):
 
     else:  # go left
         return (state[0] - 1, state[1])
-
 
 def q_training():
     run = True
@@ -626,7 +580,6 @@ def q_training():
         if get_current_state() == goal_state:
             run = False
 
-
 # uses trained q table to solve the maze
 def q_testing():
     run = True
@@ -655,7 +608,6 @@ def q_testing():
 
         if get_current_state() == goal_state:
             run = False
-
 
 def main():
     # q_training()
