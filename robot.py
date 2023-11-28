@@ -14,60 +14,61 @@ from sys import maxint
 
 from math import pi
 
+
 def circle_angle(gyro):
-        """
-        As the gryo rotates clockwise the angle increases, it will increase
-        by 360 for each full rotation. As the gyro rotates counter-clockwise
-        the gyro angle will decrease.
+    """
+    As the gryo rotates clockwise the angle increases, it will increase
+    by 360 for each full rotation. As the gyro rotates counter-clockwise
+    the gyro angle will decrease.
 
-        The angles on a circle have the opposite behavior though, they start
-        at 0 and increase as you move counter-clockwise around the circle.
+    The angles on a circle have the opposite behavior though, they start
+    at 0 and increase as you move counter-clockwise around the circle.
 
-        Convert the gyro angle to the angle on a circle. We consider the initial
-        position of the gyro to be at 90 degrees on the cirlce.
-        """
-        current_angle = gyro.angle
-        delta = abs(current_angle - init_angle) % 360
+    Convert the gyro angle to the angle on a circle. We consider the initial
+    position of the gyro to be at 90 degrees on the cirlce.
+    """
+    current_angle = gyro.angle
+    delta = abs(current_angle - init_angle) % 360
 
-        if delta == 0:
-            result = 90
+    if delta == 0:
+        result = 90
 
-        # the gyro has turned clockwise relative to where we started
-        elif current_angle > init_angle:
+    # the gyro has turned clockwise relative to where we started
+    elif current_angle > init_angle:
+        if delta <= 90:
+            result = 90 - delta
 
-            if delta <= 90:
-                result = 90 - delta
+        elif delta <= 180:
+            result = 360 - (delta - 90)
 
-            elif delta <= 180:
-                result = 360 - (delta - 90)
+        elif delta <= 270:
+            result = 270 - (delta - 180)
 
-            elif delta <= 270:
-                result = 270 - (delta - 180)
-
-            else:
-                result = 180 - (delta - 270)
-
-            # This can be chatty (but helpful) so save it for a rainy day
-            # log.info("%s moved clockwise %s degrees to %s" % (self, delta, result))
-
-        # the gyro has turned counter-clockwise relative to where we started
         else:
-            if delta <= 90:
-                result = 90 + delta
+            result = 180 - (delta - 270)
 
-            elif delta <= 180:
-                result = 180 + (delta - 90)
+        # This can be chatty (but helpful) so save it for a rainy day
+        # log.info("%s moved clockwise %s degrees to %s" % (self, delta, result))
 
-            elif delta <= 270:
-                result = 270 + (delta - 180)
+    # the gyro has turned counter-clockwise relative to where we started
+    else:
+        if delta <= 90:
+            result = 90 + delta
 
-            else:
-                result = delta - 270
+        elif delta <= 180:
+            result = 180 + (delta - 90)
 
-            # This can be chatty (but helpful) so save it for a rainy day
-            # log.info("%s moved counter-clockwise %s degrees to %s" % (self, delta, result))
+        elif delta <= 270:
+            result = 270 + (delta - 180)
 
-        return result
+        else:
+            result = delta - 270
+
+        # This can be chatty (but helpful) so save it for a rainy day
+        # log.info("%s moved counter-clockwise %s degrees to %s" % (self, delta, result))
+
+    return result
+
 
 class Wheel(object):
     """
@@ -89,6 +90,7 @@ class Wheel(object):
         # calculate the number of rotations needed to travel forward 500 mm
         rotations_for_500mm = 500 / tire.circumference_mm
     """
+
     def __init__(self, diameter_mm, width_mm):
         self.diameter_mm = float(diameter_mm)
         self.width_mm = float(width_mm)
@@ -98,24 +100,28 @@ class Wheel(object):
     def radius_mm(self):
         return float(self.diameter_mm / 2)
 
+
 class EV3Tire(Wheel):
     """
     part number 44309
     comes in set 31313
     """
+
     def __init__(self):
         Wheel.__init__(self, 43.2, 21)
 
-class MoveDifferential(MoveTank):
-    def __init__(self,
-                 left_motor_port,
-                 right_motor_port,
-                 wheel_class,
-                 wheel_distance_mm,
-                 gyro=None,
-                 desc=None,
-                 motor_class=LargeMotor):
 
+class MoveDifferential(MoveTank):
+    def __init__(
+        self,
+        left_motor_port,
+        right_motor_port,
+        wheel_class,
+        wheel_distance_mm,
+        gyro=None,
+        desc=None,
+        motor_class=LargeMotor,
+    ):
         MoveTank.__init__(self, left_motor_port, right_motor_port, desc, motor_class)
         self.wheel = wheel_class()
         self.wheel_distance_mm = wheel_distance_mm
@@ -131,16 +137,18 @@ class MoveDifferential(MoveTank):
         self.odometry_thread_run = False
         self.theta = 0.0
         self._gyro = gyro
-    
+
     def on_for_distance(self, speed, distance_mm, brake=True, block=True):
         """
         Drive in a straight line for ``distance_mm``
         """
         rotations = distance_mm / self.wheel.circumference_mm
-        
+
         MoveTank.on_for_rotations(self, speed, speed, rotations, brake, block)
 
-    def turn_degrees(self, speed, degrees, brake=True, block=True, error_margin=2, use_gyro=False):
+    def turn_degrees(
+        self, speed, degrees, brake=True, block=True, error_margin=2, use_gyro=False
+    ):
         """
         Rotate in place ``degrees``. Both wheels must turn at the same speed for us
         to rotate in place.  If the following conditions are met the GryoSensor will
@@ -148,6 +156,7 @@ class MoveDifferential(MoveTank):
         - ``use_gyro``, ``brake`` and ``block`` are all True
         - A GyroSensor has been defined via ``self.gyro = GyroSensor()``
         """
+
         def final_angle(init_angle, degrees):
             result = init_angle - degrees
 
@@ -166,7 +175,8 @@ class MoveDifferential(MoveTank):
         use_gyro = bool(use_gyro and block and brake)
         if use_gyro and not self._gyro:
             raise DeviceNotDefined(
-                "The 'gyro' variable must be defined with a GyroSensor. Example: tank.gyro = GyroSensor()")
+                "The 'gyro' variable must be defined with a GyroSensor. Example: tank.gyro = GyroSensor()"
+            )
 
         if use_gyro:
             angle_init_degrees = circle_angle(self._gyro)
@@ -195,11 +205,15 @@ class MoveDifferential(MoveTank):
             # This can happen if we are aiming for 2 degrees and overrotate to 358 degrees
             # We need to rotate counter-clockwise
             if 90 >= angle_target_degrees >= 0 and 270 <= angle_current_degrees <= 360:
-                degrees_error = (angle_target_degrees + (360 - angle_current_degrees)) * -1
+                degrees_error = (
+                    angle_target_degrees + (360 - angle_current_degrees)
+                ) * -1
 
             # This can happen if we are aiming for 358 degrees and overrotate to 2 degrees
             # We need to rotate clockwise
-            elif 360 >= angle_target_degrees >= 270 and 0 <= angle_current_degrees <= 90:
+            elif (
+                360 >= angle_target_degrees >= 270 and 0 <= angle_current_degrees <= 90
+            ):
                 degrees_error = angle_current_degrees + (360 - angle_target_degrees)
 
             # We need to rotate clockwise
@@ -211,7 +225,10 @@ class MoveDifferential(MoveTank):
                 degrees_error = (angle_target_degrees - angle_current_degrees) * -1
 
             if abs(degrees_error) > error_margin:
-                self.turn_degrees(speed, degrees_error, brake, block, error_margin, use_gyro)
+                self.turn_degrees(
+                    speed, degrees_error, brake, block, error_margin, use_gyro
+                )
+
 
 STUD_MM = 8
 
@@ -223,7 +240,9 @@ motorA = LargeMotor(OUTPUT_A)
 motorB = LargeMotor(OUTPUT_B)
 left_motor = motorA
 right_motor = motorB
-tank_drive = MoveDifferential(OUTPUT_A, OUTPUT_B, EV3Tire, 16 * STUD_MM, gyro = gyro_sensor)
+tank_drive = MoveDifferential(
+    OUTPUT_A, OUTPUT_B, EV3Tire, 16 * STUD_MM, gyro=gyro_sensor
+)
 steering_drive = MoveSteering(OUTPUT_A, OUTPUT_B)
 
 spkr = Sound()
@@ -255,36 +274,36 @@ facing = 0
 
 wall_states = set()
 
-cell_size = 60
+cell_size = 60 - 8
 
 move_speed = 30
+
 
 # Not to be used. These functions are for making the actions simpler to read.
 def turn_right_90():
     global facing
 
+    # angle = gyro_sensor.angle
+    # while gyro_sensor.angle < angle + 87:
+    # steering_drive.on(100, 20)
+    # tank_drive.on(0, 0)
 
-    #angle = gyro_sensor.angle
-    #while gyro_sensor.angle < angle + 87:
-        #steering_drive.on(100, 20)
-    #tank_drive.on(0, 0)
+    tank_drive.turn_degrees(30, 90, use_gyro=True)
 
-    tank_drive.turn_degrees(30, 90, use_gyro=True) 
-    
     facing += 1
     facing %= 4
 
 
 def turn_left_90():
     global facing
-    
-    #angle = gyro_sensor.angle
-    #while gyro_sensor.angle > angle - 85:
-        #tank_drive.on(-10, 20)
-    #tank_drive.on(0, 0)
-    
+
+    # angle = gyro_sensor.angle
+    # while gyro_sensor.angle > angle - 85:
+    # tank_drive.on(-10, 20)
+    # tank_drive.on(0, 0)
+
     tank_drive.turn_degrees(30, -90, use_gyro=True)
-    
+
     facing -= 1
     facing %= 4
 
@@ -310,6 +329,7 @@ def move_up():
         tank_drive.on(move_speed, move_speed)
 
     tank_drive.on(0, 0)
+
 
 def move_down():
     global facing
@@ -406,7 +426,7 @@ def get_current_state():
 
 
 def get_state(x, y):
-    return (int(x // cell_size)+7, int(y // cell_size)+7)
+    return (int(x // cell_size) + 7, int(y // cell_size) + 7)
 
 
 # next step: to use get_state to remove the wall state from the maze state make a function of it.
@@ -475,6 +495,7 @@ gamma = 0.8
 
 visited = []
 
+
 def computeReward(state):
     if state == goal_state:
         return 100
@@ -540,40 +561,38 @@ def computeQValue(state, action):
         return q
 
     else:
-        return (-maxint - 1)
+        return -maxint - 1
 
 
 def get_q_value(state, action):
     return q_table[15 * state[0] + state[1]][action]
 
+
 def get_next_state(state, action):
     if action == 0:  # go up
-        return(state[0], state[1] + 1)
+        return (state[0], state[1] + 1)
 
     elif action == 1:  # go right
-        return(state[0] + 1, state[1])
+        return (state[0] + 1, state[1])
 
     elif action == 2:  # go down
-        return(state[0], state[1] - 1)
+        return (state[0], state[1] - 1)
 
     else:  # go left
-        return(state[0] - 1, state[1])
+        return (state[0] - 1, state[1])
+
 
 def q_training():
     run = True
 
     while run:
-        # get state
-
         next_state = 0
         next_action = 0
 
         current_state = get_current_state()
 
-        #get surrounding walls
-        wall_tracker(x, y)
-        
-        # checking if the state is valid
+        # get surrounding walls
+        wall_tracker(current_state[0], current_state[1])
 
         Q_up = computeQValue(current_state, 0)
         Q_right = computeQValue(current_state, 1)
@@ -586,10 +605,8 @@ def q_training():
 
         for i in range(len(Q_options)):
             if Q_options[i] > best_Q:
-                next_state = get_next_state(current_state, i)
-                next_action = i
-
-        # need to stop move incase robot reaches goal state (Break Loop)
+                next_state = get_next_state(current_state, i + 1)
+                next_action = i + 1
 
         nextMove(next_state, next_action)
 
@@ -628,42 +645,35 @@ def q_testing():
 
 
 def main():
-    #q_training()
-    
-    for i in range(10):
+    # q_training()
+
+    for i in range(20):
         next_state = 0
         next_action = 0
 
         current_state = get_current_state()
-    
-        #get surrounding walls
+
+        # get surrounding walls
         wall_tracker(current_state[0], current_state[1])
 
         Q_up = computeQValue(current_state, 0)
         Q_right = computeQValue(current_state, 1)
         Q_down = computeQValue(current_state, 2)
         Q_left = computeQValue(current_state, 3)
-    
+
         best_Q = Q_up
 
         Q_options = (Q_right, Q_down, Q_left)
-    
-        print(best_Q)
-        print(Q_options)
 
         for i in range(len(Q_options)):
             if Q_options[i] > best_Q:
-                next_state = get_next_state(current_state, i+1)
-                next_action = i+1
+                next_state = get_next_state(current_state, i + 1)
+                next_action = i + 1
 
-        print()
-        print(next_state)
-        print(next_action)
-    
         nextMove(next_state, next_action)
 
         if get_current_state() == goal_state:
             run = False
 
-main()
 
+main()
