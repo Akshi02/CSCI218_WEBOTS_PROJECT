@@ -408,3 +408,10 @@ def q_testing():
 
         if get_current_state() == goal_state:
             run = False
+
+
+def main():
+    q_training()
+
+
+main()
