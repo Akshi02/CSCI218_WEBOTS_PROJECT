@@ -249,6 +249,8 @@ ul_sensor_front.MODE_US_DIST_CM = "US-DIST-CM"
 ul_sensor_left.MODE_US_DIST_CM = "US-DIST-CM"
 ul_sensor_right.MODE_US_DIST_CM = "US-DIST-CM"
 
+move_speed = 50
+
 # facing represents which direction the robot is facing
 # 0 represents up
 # 1 represents right
@@ -256,11 +258,20 @@ ul_sensor_right.MODE_US_DIST_CM = "US-DIST-CM"
 # 3 represents left
 facing = 0
 
-wall_states = set()
-
+maze_width = 5
+maze_height = 5
 cell_size = 60
 
-move_speed = 50
+# Define states
+states = [(x, y) for x in range(maze_width) for y in range(maze_height)]
+goal_state = (maze_height-1, maze_width-1)
+wall_states = set()
+
+q_table = [[0, 0, 0, 0] for i in range(maze_height * maze_width)]
+#q_table = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [-9007199254740992, -6.48, -9007199254740992, -9007199254740992], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [-9007199254740992, -6.48, -9007199254740992, -22.1472], [0, 0, 0, 0], [0, 0, 0, 0], [20.8928, 20.8928, -9007199254740992, -9007199254740992], [18.0, -9007199254740992, 9.52, -9007199254740992], [-9007199254740992, -9007199254740992, -2.0, 18.0], [0, 0, 0, 0], [-9007199254740992, 18.0, -9007199254740992, 29.52], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+gamma = 0.8
+
+visited = set()
 
 # Not to be used. These functions are for making the actions simpler to read.
 def turn_right_90():
@@ -383,15 +394,12 @@ def nextMove(next_state, next_action):
     elif next_action == 3:
         move_left()
 
-def get_current_state():
-    return get_state(gps_sensor.x, gps_sensor.y)
-
-# Akshita's Functions --------------------------------------------------------------------------------------------------------------------------------------
-
 def get_state(x, y):
     return (int(int(x) // cell_size) + maze_width//2, int(int(y) // cell_size) + maze_width//2 )
 
-# next step: to use get_state to remove the wall state from the maze state make a function of it.
+def get_current_state():
+    return get_state(gps_sensor.x, gps_sensor.y)
+
 def wall_tracker(x, y):
     global facing
 
@@ -435,32 +443,11 @@ def wall_tracker(x, y):
         elif facing == 3:
             wall_states.add(((x, y), (x + 1, y)))
 
-# Akshita's States Defination:
-
-maze_width = 5
-maze_height = 5
-
-# Define states
-states = [(x, y) for x in range(maze_width) for y in range(maze_height)]
-goal_state = (maze_height-1, maze_width-1)
-# ------------------------------------------------------------------------------------------------------------------------------
-# Joseph's code
-
-q_table = [[0, 0, 0, 0] for i in range(maze_height * maze_width)]
-#q_table = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [-9007199254740992, -2.0, -9007199254740992, -9007199254740992], [0, 0, 0, 0], [0, 0, 0, 0], [-2.0, -2.0, -9007199254740992, -9007199254740992], [20.8928, -9007199254740992, 0.8928000000000011, -9007199254740992], [-9007199254740992, 20.8928, 0.8928000000000011, 0.8928000000000011], [0, 0, 0, 0], [0, 0, 0, 0], [20.8928, 0.8928000000000011, -9007199254740992, -9007199254740992], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [-9007199254740992, 18.0, -9007199254740992, 9.52], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
-gamma = 0.8
-
-# reward = -100
-
-visited = set()
-
 def computeReward(state):
     if state == goal_state:
         return 100
-
     elif state in visited:
         return -10
-
     else:
         return 10
 
@@ -482,40 +469,9 @@ def getNextStates(state):  # returns the q values of next possible states
                 )
             q_values.append(q_value)
 
-    #q0 = computeReward(stateLeft) + gamma * max(
-        #q_table[maze_width * stateLeft[0] + stateLeft[1]][0],
-        #q_table[maze_width * stateLeft[0] + stateLeft[1]][1],
-        #q_table[maze_width * stateLeft[0] + stateLeft[1]][2],
-        #q_table[maze_width * stateLeft[0] + stateLeft[1]][3],
-    #)
-    #q1 = computeReward(stateUp) + gamma * max(
-        #q_table[maze_width * stateUp[0] + stateUp[1]][0],
-        #q_table[maze_width * stateUp[0] + stateUp[1]][1],
-        #q_table[maze_width * stateUp[0] + stateUp[1]][2],
-        #q_table[maze_width * stateUp[0] + stateUp[1]][3],
-    #)
-    #q2 = computeReward(stateRight) + gamma * max(
-        #q_table[maze_width * stateRight[0] + stateRight[1]][0],
-        #q_table[maze_width * stateRight[0] + stateRight[1]][1],
-        #q_table[maze_width * stateRight[0] + stateRight[1]][2],
-        #q_table[maze_width * stateRight[0] + stateRight[1]][3],
-    #)
-    #q3 = computeReward(stateDown) + gamma * max(
-        #q_table[maze_width * stateDown[0] + stateDown[1]][0],
-        #q_table[maze_width * stateDown[0] + stateDown[1]][1],
-        #q_table[maze_width * stateDown[0] + stateDown[1]][2],
-        #q_table[maze_width * stateDown[0] + stateDown[1]][3],
-    #)
-
-    #next_states = (q0, q1, q2, q3)
-
-    #return next_states
-
     return tuple(q_values)
 
 def computeQValue(state, action):
-    # q_table = [[0,0,0,0],[0,0,0,0]] list of states and their actions inside them
-
     # q(state, action) = r(state, action) + gamma * Max[Q_nextState()]
 
     next_state = get_next_state(state, action)
@@ -549,10 +505,9 @@ def get_next_state(state, action):
     else:  # go left
         return (state[0] - 1, state[1])
 
-def q_training():
-    run = True
+def q_training(runs):
 
-    while run:
+    for run in range(runs):
         next_state = 0
         next_action = 0
 
@@ -575,10 +530,11 @@ def q_training():
                 next_state = get_next_state(current_state, i + 1)
                 next_action = i + 1
 
+        visited.add(current_state)
         nextMove(next_state, next_action)
-
-        if get_current_state() == goal_state:
-            run = False
+        print(run)
+        
+    print(q_table)
 
 # uses trained q table to solve the maze
 def q_testing():
@@ -610,42 +566,7 @@ def q_testing():
             run = False
 
 def main():
-    # q_training()
-    
-    for i in range(10):
-        next_state = 0
-        next_action = 0
-
-        current_state = get_current_state()
-        print(current_state)
-
-        # get surrounding walls
-        wall_tracker(current_state[0], current_state[1])
-
-        Q_up = computeQValue(current_state, 0)
-        Q_right = computeQValue(current_state, 1)
-        Q_down = computeQValue(current_state, 2)
-        Q_left = computeQValue(current_state, 3)
-
-        #Q_up = get_q_value(current_state, 0)
-        #Q_right = get_q_value(current_state, 1)
-        #Q_down = get_q_value(current_state, 2)
-        #Q_left = get_q_value(current_state, 3)
-        best_Q = Q_up
-
-        Q_options = (Q_right, Q_down, Q_left)
-
-        for i in range(len(Q_options)):
-            if Q_options[i] > best_Q:
-                next_state = get_next_state(current_state, i + 1)
-                next_action = i + 1
-
-        visited.add(current_state)
-        nextMove(next_state, next_action)
-        
-        if get_current_state() == goal_state:
-            run = False
-
-    print(q_table)
+    q_training(20)
+    #q_testing()
 
 main()
